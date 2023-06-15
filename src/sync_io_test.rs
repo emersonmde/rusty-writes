@@ -25,7 +25,6 @@ impl LoadTest for SyncIoTest {
 
         // Create a temporary directory for the test
         let dir = tempdir().expect("Failed to create temp directory");
-        println!("Using TempDir: {:?}", dir);
         let file_path = dir.path().join("test_log");
         let mut file = File::create(&file_path).await.expect("Failed to create file");
         for _ in 0..num_writes {

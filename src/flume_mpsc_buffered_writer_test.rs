@@ -25,7 +25,6 @@ impl LoadTest for FlumeMpscBufferedWriterTest {
 
         // Create a temporary directory for the test
         let dir = tempdir().expect("Failed to create temp directory");
-        println!("Using TempDir: {:?}", dir);
         let file_path = dir.path().join("test_log");
 
         // Create a channel for sending messages to the file writer task
@@ -38,12 +37,12 @@ impl LoadTest for FlumeMpscBufferedWriterTest {
 
             while let Ok((message, duration_start)) = receiver.recv_async().await {
                 buf_writer.write_all(&message).await.expect("Failed to write to file");
+                buf_writer.flush().await;
                 let duration = Instant::now().duration_since(duration_start);
 
                 // Add the result to the results vector
                 results.push(duration.as_nanos() as f64);
             }
-            buf_writer.flush().await;
             results
         });
 

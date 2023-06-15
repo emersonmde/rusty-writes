@@ -25,7 +25,6 @@ impl LoadTest for MpscSingleWriterTest {
 
         // Create a temporary directory for the test
         let dir = tempdir().expect("Failed to create temp directory");
-        println!("Using TempDir: {:?}", dir);
         let file_path = dir.path().join("test_log");
 
         // Create a channel for sending messages to the file writer task

@@ -1,3 +1,5 @@
+use core::num;
+
 use tokio::time::Instant;
 
 use crate::{load_test::LoadTest, test_result::TestResult};
@@ -21,13 +23,14 @@ impl TestRunner {
 
     pub async fn run_tests(&self, tests: Vec<Box<dyn LoadTest>>) {
         for test in tests {
-            println!("===== Running test: {} =====", test.get_name());
             let start = Instant::now();
 
             let run_start = Instant::now();
             // let num_writes = 1_000_000;
             let num_writes = 100_000;
-            let result = test.run(num_writes, 300..2_000).await;
+            let size_range = 300..2_000;
+            let result = test.run(num_writes, size_range.clone()).await;
+            println!("===== Running test {} ({} writes of size {:?}) =====", test.get_name(), num_writes, size_range);
             let run_duration_ns = Instant::now().duration_since(run_start).as_nanos() as f64;
             Self::print_results(result, num_writes, run_duration_ns);
 
