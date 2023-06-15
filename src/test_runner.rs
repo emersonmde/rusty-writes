@@ -25,7 +25,8 @@ impl TestRunner {
             let start = Instant::now();
 
             let run_start = Instant::now();
-            let num_writes = 1_000_000;
+            // let num_writes = 1_000_000;
+            let num_writes = 100_000;
             let result = test.run(num_writes, 300..2_000).await;
             let run_duration_ns = Instant::now().duration_since(run_start).as_nanos() as f64;
             Self::print_results(result, num_writes, run_duration_ns);

@@ -22,20 +22,12 @@ impl LoadTest for FlumeMpmcTest {
     }
 
     async fn run(&self, num_writes: usize, size_range: Range<usize>) -> TestResult {
-        let mut total_bytes: u64 = 0;
-
         // Create a temporary directory for the test
         let dir = tempdir().expect("Failed to create temp directory");
         let file_path = dir.path().join("test_log");
 
         // Create a channel for sending messages to the file writer tasks
         let (sender, receiver) = flume::unbounded::<Vec<u8>>();
-
-        // let file = std::fs::OpenOptions::new()
-        //     .create(true)
-        //     .write(true)
-        //     .open(&file_path)
-        //     .expect("Failed to create file");
 
         let offset = Arc::new(AtomicU64::new(0));
 
@@ -78,7 +70,6 @@ impl LoadTest for FlumeMpmcTest {
         for _ in 0..num_writes {
             let mut rng = rand::rngs::StdRng::from_entropy();
             let msg_size = rng.gen_range(size_range.clone());
-            total_bytes += msg_size as u64;
             let message = vec![0u8; msg_size];
             let sender_clone = sender.clone();
 
@@ -99,7 +90,9 @@ impl LoadTest for FlumeMpmcTest {
 
         let metadata = fs::metadata(file_path).await.expect("Failed to get file metadata");
         let file_size = metadata.len();
-        assert_eq!(file_size, offset.load(Ordering::SeqCst));
+        let bytes_written = offset.load(Ordering::SeqCst);
+        assert_eq!(file_size, bytes_written);
+        println!("File size {} matches {} bytes written", file_size, bytes_written);
 
         dir.close().expect("Failed to delete temp directory");
 
@@ -116,7 +109,7 @@ impl LoadTest for FlumeMpmcTest {
             median,
             p90,
             num_writes: num_writes as u64,
-            total_bytes,
+            total_bytes: bytes_written,
         }
     }
 }
