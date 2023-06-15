@@ -27,6 +27,7 @@ impl LoadTest for ArcMutexTest {
         let mut tasks = Vec::new();
 
         let dir = tempdir().expect("Failed to create temp directory");
+        println!("Using TempDir: {:?}", dir);
         let file_path = dir.path().join("test_log");
         let file = File::create(&file_path).await.expect("Failed to create file");
         let file = Arc::new(AsyncMutex::new(file));
